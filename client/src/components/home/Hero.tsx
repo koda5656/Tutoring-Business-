@@ -47,7 +47,10 @@ export default function Hero() {
             transition={{ delay: 0.5 }}
             className="flex flex-col sm:flex-row gap-4 justify-center"
           >
-            <Button size="lg" className="bg-white text-black hover:bg-gray-100">
+            <Button
+              size="lg"
+              className="bg-gradient-to-r from-blue-600 to-blue-500 text-white hover:from-blue-700 hover:to-blue-600 shadow-lg shadow-blue-500/20"
+            >
               Book Your First Session
             </Button>
             <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
