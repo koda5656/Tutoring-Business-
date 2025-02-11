@@ -7,23 +7,30 @@ export const users = pgTable("users", {
   username: text("username").notNull().unique(),
   password: text("password").notNull(),
   email: text("email").notNull(),
+  fullName: text("full_name").notNull(),
   isAdmin: boolean("is_admin").default(false),
+  phoneNumber: text("phone_number"),
+  gradeLevel: text("grade_level"),
 });
 
 export const packages = pgTable("packages", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   description: text("description").notNull(),
-  hours: integer("hours").notNull(),
-  pricePerHour: decimal("price_per_hour").notNull(),
+  totalHours: integer("total_hours").notNull(),
+  pricePerHour: decimal("price_per_hour", { precision: 10, scale: 2 }).notNull(),
   maxStudents: integer("max_students").notNull(),
+  validityPeriod: integer("validity_period").notNull(), // in days
+  featuredOrder: integer("featured_order"), // for featured packages display order, null if not featured
 });
 
 export const subjects = pgTable("subjects", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   description: text("description").notNull(),
-  level: text("level").notNull(), // e.g., "Beginner", "Intermediate", "Advanced"
+  level: text("level").notNull(), // e.g., "Elementary", "Middle School", "High School", "College"
+  category: text("category").notNull(), // e.g., "Mathematics", "Science", "Languages"
+  imageUrl: text("image_url"), // URL to subject icon or illustration
 });
 
 export const bookings = pgTable("bookings", {
@@ -32,7 +39,11 @@ export const bookings = pgTable("bookings", {
   packageId: integer("package_id").references(() => packages.id),
   subjectId: integer("subject_id").references(() => subjects.id),
   startDate: timestamp("start_date").notNull(),
+  endDate: timestamp("end_date").notNull(),
   status: text("status").notNull().default("pending"), // pending, confirmed, completed, cancelled
+  notes: text("notes"), // Special requirements or notes for the session
+  zoomLink: text("zoom_link"), // Online session link
+  remainingHours: decimal("remaining_hours", { precision: 10, scale: 2 }), // Tracks remaining hours in the package
 });
 
 // Insert schemas
@@ -42,19 +53,38 @@ export const insertUserSchema = createInsertSchema(users).omit({
 }).extend({
   password: z.string().min(6, "Password must be at least 6 characters"),
   email: z.string().email("Invalid email address"),
+  fullName: z.string().min(2, "Full name is required"),
+  phoneNumber: z.string().optional(),
+  gradeLevel: z.string().optional(),
 });
 
 export const insertPackageSchema = createInsertSchema(packages).omit({
   id: true,
+  featuredOrder: true,
+}).extend({
+  totalHours: z.number().min(1, "Package must include at least 1 hour"),
+  pricePerHour: z.number().min(0, "Price cannot be negative"),
+  maxStudents: z.number().min(1, "Package must allow at least 1 student"),
+  validityPeriod: z.number().min(1, "Package must be valid for at least 1 day"),
 });
 
 export const insertSubjectSchema = createInsertSchema(subjects).omit({
   id: true,
+}).extend({
+  level: z.enum(["Elementary", "Middle School", "High School", "College"]),
+  category: z.enum(["Mathematics", "Science", "Languages", "Arts", "Social Studies", "Test Prep"]),
+  imageUrl: z.string().url().optional(),
 });
 
 export const insertBookingSchema = createInsertSchema(bookings).omit({
   id: true,
   status: true,
+  remainingHours: true,
+}).extend({
+  startDate: z.date(),
+  endDate: z.date(),
+  notes: z.string().optional(),
+  zoomLink: z.string().url().optional(),
 });
 
 // Types
