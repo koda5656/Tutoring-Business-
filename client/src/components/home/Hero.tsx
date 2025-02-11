@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import GridPattern from "../ui/patterns/GridPattern";
+import { Link } from "wouter";
 
 export default function Hero() {
   return (
@@ -47,12 +48,14 @@ export default function Hero() {
             transition={{ delay: 0.5 }}
             className="flex flex-col sm:flex-row gap-4 justify-center"
           >
-            <Button
-              size="lg"
-              className="bg-gradient-to-r from-blue-600 to-blue-500 text-white hover:from-blue-700 hover:to-blue-600 shadow-lg shadow-blue-500/20"
-            >
-              Book Your First Session
-            </Button>
+            <Link href="/pricing">
+              <Button
+                size="lg"
+                className="bg-gradient-to-r from-blue-600 to-blue-500 text-white hover:from-blue-700 hover:to-blue-600 shadow-lg shadow-blue-500/20"
+              >
+                Book Your First Session
+              </Button>
+            </Link>
             <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
               Browse Subjects
             </Button>

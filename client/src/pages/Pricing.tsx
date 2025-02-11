@@ -7,40 +7,46 @@ import Header from "@/components/layout/Header";
 
 const plans = [
   {
-    name: "Starter",
-    price: "$49",
-    description: "Perfect for small teams getting started",
+    name: "Basic Package",
+    hours: 4,
+    pricePerHour: 45,
+    description: "Perfect for light academic support",
     features: [
-      "Up to 5 team members",
-      "Basic analytics",
-      "24/7 email support",
-      "1GB storage"
+      "4 hours of tutoring per week",
+      "Flexible scheduling",
+      "Progress tracking",
+      "Homework assistance",
+      "1-on-1 sessions"
     ]
   },
   {
-    name: "Professional",
-    price: "$99",
-    description: "Ideal for growing businesses",
+    name: "Standard Package",
+    hours: 8,
+    pricePerHour: 40,
+    description: "Most popular for consistent improvement",
     features: [
-      "Up to 20 team members",
-      "Advanced analytics",
-      "Priority support",
-      "10GB storage",
-      "Custom integrations"
+      "8 hours of tutoring per week",
+      "Priority scheduling",
+      "Detailed progress reports",
+      "Homework & test prep",
+      "Study materials included",
+      "1-on-1 sessions"
     ],
     highlighted: true
   },
   {
-    name: "Enterprise",
-    price: "Custom",
-    description: "For large-scale organizations",
+    name: "Intensive Package",
+    hours: 10,
+    pricePerHour: 35,
+    description: "Ideal for rapid academic advancement",
     features: [
-      "Unlimited team members",
-      "Advanced analytics & reporting",
-      "24/7 phone support",
-      "Unlimited storage",
-      "Custom development",
-      "Dedicated account manager"
+      "10 hours of tutoring per week",
+      "Premium scheduling priority",
+      "Comprehensive progress tracking",
+      "Full test prep coverage",
+      "Custom study materials",
+      "1-on-1 sessions",
+      "Parent-teacher conferences"
     ]
   }
 ];
@@ -51,7 +57,7 @@ export default function Pricing() {
       <Header />
       <div className="relative pt-20">
         <WavePattern />
-        
+
         <div className="container mx-auto px-6 py-24">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -59,9 +65,9 @@ export default function Pricing() {
             transition={{ duration: 0.8 }}
             className="max-w-3xl mx-auto text-center mb-16"
           >
-            <h1 className="text-4xl font-bold text-white mb-6">Simple, Transparent Pricing</h1>
+            <h1 className="text-4xl font-bold text-white mb-6">Choose Your Tutoring Package</h1>
             <p className="text-gray-400 text-lg">
-              Choose the perfect plan for your business needs
+              Select the perfect amount of tutoring hours to achieve your academic goals
             </p>
           </motion.div>
 
@@ -81,10 +87,16 @@ export default function Pricing() {
                 >
                   <div className="mb-8">
                     <h3 className="text-xl font-semibold text-white mb-2">{plan.name}</h3>
-                    <div className="text-3xl font-bold text-white mb-2">{plan.price}</div>
+                    <div className="text-3xl font-bold text-white mb-2">
+                      ${plan.pricePerHour}
+                      <span className="text-lg text-gray-400">/hour</span>
+                    </div>
+                    <div className="text-blue-400 font-medium mb-2">
+                      {plan.hours} hours per week
+                    </div>
                     <p className="text-gray-400">{plan.description}</p>
                   </div>
-                  
+
                   <div className="flex-grow">
                     <ul className="space-y-4 mb-8">
                       {plan.features.map((feature, featureIndex) => (
@@ -98,9 +110,11 @@ export default function Pricing() {
 
                   <Button 
                     variant={plan.highlighted ? "default" : "secondary"}
-                    className={`w-full ${plan.highlighted ? 'bg-white text-black hover:bg-gray-100' : ''}`}
+                    className={`w-full ${plan.highlighted 
+                      ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white hover:from-blue-700 hover:to-blue-600 shadow-lg shadow-blue-500/20' 
+                      : ''}`}
                   >
-                    Get Started
+                    Select Package
                   </Button>
                 </Card>
               </motion.div>
