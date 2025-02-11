@@ -1,10 +1,10 @@
 import { drizzle } from "drizzle-orm/node-postgres";
 import { sql } from "drizzle-orm";
-import { Client } from "@neondatabase/serverless";
 import { users, packages, subjects, bookings } from "@shared/schema";
 import type { User, InsertUser, Package, InsertPackage, Subject, InsertSubject, Booking, InsertBooking } from "@shared/schema";
 import session from "express-session";
 import connectPg from "connect-pg-simple";
+import { db } from "./db";
 
 const PostgresSessionStore = connectPg(session);
 
@@ -35,15 +35,9 @@ export interface IStorage {
 }
 
 export class DatabaseStorage implements IStorage {
-  private db: ReturnType<typeof drizzle>;
   sessionStore: session.Store;
 
   constructor() {
-    const client = new Client({ connectionString: process.env.DATABASE_URL! });
-    client.connect().then(() => {
-      this.db = drizzle(client);
-    });
-
     this.sessionStore = new PostgresSessionStore({
       conObject: {
         connectionString: process.env.DATABASE_URL,
@@ -52,95 +46,79 @@ export class DatabaseStorage implements IStorage {
     });
   }
 
-  private async getDb() {
-    if (!this.db) {
-      throw new Error("Database not initialized");
-    }
-    return this.db;
-  }
-
   async getUser(id: number): Promise<User | undefined> {
-    const db = await this.getDb();
-    const result = await db.select().from(users).where(sql`${users.id} = ${id}`).limit(1);
-    return result[0];
+    const [user] = await db.select().from(users).where(sql`${users.id} = ${id}`);
+    return user;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    const db = await this.getDb();
-    const result = await db.select().from(users).where(sql`${users.username} = ${username}`).limit(1);
-    return result[0];
+    const [user] = await db.select().from(users).where(sql`${users.username} = ${username}`);
+    return user;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const db = await this.getDb();
-    const result = await db.insert(users).values({
-      ...insertUser,
-      isAdmin: false,
-    }).returning();
-    return result[0];
+    const [user] = await db.insert(users)
+      .values({
+        ...insertUser,
+        isAdmin: false,
+      })
+      .returning();
+    return user;
   }
 
   async getPackage(id: number): Promise<Package | undefined> {
-    const db = await this.getDb();
-    const result = await db.select().from(packages).where(sql`${packages.id} = ${id}`).limit(1);
-    return result[0];
+    const [pkg] = await db.select().from(packages).where(sql`${packages.id} = ${id}`);
+    return pkg;
   }
 
   async getAllPackages(): Promise<Package[]> {
-    const db = await this.getDb();
     return await db.select().from(packages);
   }
 
   async createPackage(pkg: InsertPackage): Promise<Package> {
-    const db = await this.getDb();
-    const result = await db.insert(packages).values(pkg).returning();
-    return result[0];
+    const [newPkg] = await db.insert(packages).values(pkg).returning();
+    return newPkg;
   }
 
   async getSubject(id: number): Promise<Subject | undefined> {
-    const db = await this.getDb();
-    const result = await db.select().from(subjects).where(sql`${subjects.id} = ${id}`).limit(1);
-    return result[0];
+    const [subject] = await db.select().from(subjects).where(sql`${subjects.id} = ${id}`);
+    return subject;
   }
 
   async getAllSubjects(): Promise<Subject[]> {
-    const db = await this.getDb();
     return await db.select().from(subjects);
   }
 
   async createSubject(subject: InsertSubject): Promise<Subject> {
-    const db = await this.getDb();
-    const result = await db.insert(subjects).values(subject).returning();
-    return result[0];
+    const [newSubject] = await db.insert(subjects).values(subject).returning();
+    return newSubject;
   }
 
   async getBooking(id: number): Promise<Booking | undefined> {
-    const db = await this.getDb();
-    const result = await db.select().from(bookings).where(sql`${bookings.id} = ${id}`).limit(1);
-    return result[0];
+    const [booking] = await db.select().from(bookings).where(sql`${bookings.id} = ${id}`);
+    return booking;
   }
 
   async getUserBookings(userId: number): Promise<Booking[]> {
-    const db = await this.getDb();
     return await db.select().from(bookings).where(sql`${bookings.userId} = ${userId}`);
   }
 
   async createBooking(booking: InsertBooking): Promise<Booking> {
-    const db = await this.getDb();
-    const result = await db.insert(bookings).values({
-      ...booking,
-      status: "pending",
-    }).returning();
-    return result[0];
+    const [newBooking] = await db.insert(bookings)
+      .values({
+        ...booking,
+        status: "pending",
+      })
+      .returning();
+    return newBooking;
   }
 
   async updateBookingStatus(id: number, status: string): Promise<Booking | undefined> {
-    const db = await this.getDb();
-    const result = await db.update(bookings)
+    const [updated] = await db.update(bookings)
       .set({ status })
       .where(sql`${bookings.id} = ${id}`)
       .returning();
-    return result[0];
+    return updated;
   }
 }
 
